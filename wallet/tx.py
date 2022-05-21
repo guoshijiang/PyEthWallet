@@ -1,7 +1,7 @@
 import json
 from web3 import Web3
 from decimal import Decimal
-
+from web3.auto import w3
 
 EIP20_ABI = json.loads('[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}]')  # noqa: 501
 
@@ -38,7 +38,7 @@ class Transaction:
             contractCoin = Web3.eth.contract(address=contractAddress, abi=EIP20_ABI)
             unsignTx = contractCoin.functions.transfer(
                 self.to,
-                Web3.toWei(self.value, "18"),
+                Web3.toWei(self.value, "ether"),
             ).buildTransaction({
                 'chainId': self.chainId,
                 'gas': self.gas,
@@ -49,7 +49,7 @@ class Transaction:
         else:
             unsignTx = {
                 'to': self.to,
-                'value': Web3.toWei(self.value, "18"),
+                'value': Web3.toWei(self.value, "ether"),
                 'gas': self.gas,
                 'maxFeePerGas': self.maxFeePerGas,
                 'maxPriorityFeePerGas': self.maxPriorityFeePerGas,
@@ -59,5 +59,7 @@ class Transaction:
         return unsignTx
 
     def signTx(self, tx, priv):
-        Web3.eth.signTransaction(tx, priv)
+        signed = w3.eth.account.signTransaction(tx, priv)
+        print(w3.toHex(signed.hash))
+        return signed.rawTransaction
 
