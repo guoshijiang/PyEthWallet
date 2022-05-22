@@ -20,3 +20,11 @@ class RpcClient:
     def getTxCount(self, address):
         return self.web3Client.eth.get_transaction_count(address)
 
+    def getTxByHash(self, txHash):
+        return self.web3Client.eth.get_transaction(txHash)
+
+    def getTxByHashRecipt(self, txHash):
+        return self.web3Client.eth.get_transaction_receipt(txHash)
+
+
+
