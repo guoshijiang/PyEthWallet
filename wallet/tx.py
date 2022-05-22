@@ -35,9 +35,9 @@ class Transaction:
 
     def buildTx(self, contractAddress):
         if contractAddress != "0x00":
-            contractCoin = Web3.eth.contract(address=contractAddress, abi=EIP20_ABI)
+            contractCoin = Web3.eth.contract(address=Web3.toChecksumAddress(contractAddress), abi=EIP20_ABI)
             unsignTx = contractCoin.functions.transfer(
-                self.to,
+                Web3.toChecksumAddress(self.to),
                 Web3.toWei(self.value, "ether"),
             ).buildTransaction({
                 'chainId': self.chainId,
@@ -48,7 +48,7 @@ class Transaction:
            })
         else:
             unsignTx = {
-                'to': self.to,
+                'to':  Web3.toChecksumAddress(self.to),
                 'value': Web3.toWei(self.value, "ether"),
                 'gas': self.gas,
                 'maxFeePerGas': self.maxFeePerGas,

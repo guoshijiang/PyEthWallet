@@ -10,15 +10,15 @@ class RpcClient:
     def isValid(self):
         return self.web3Client.isConnected()
 
-    def getBalance(self, address, unit: str):
-        balance = self.web3Client.eth.getBalance(address)
+    def getBalance(self, address: str, unit: str):
+        balance = self.web3Client.eth.getBalance(Web3.toChecksumAddress(address))
         return Web3.fromWei(balance, unit)
 
     def sendTx(self, tx: str):
         return self.web3Client.eth.sendRawTransaction(tx)
 
     def getTxCount(self, address):
-        return self.web3Client.eth.get_transaction_count(address)
+        return self.web3Client.eth.get_transaction_count(Web3.toChecksumAddress(address))
 
     def getTxByHash(self, txHash):
         return self.web3Client.eth.get_transaction(txHash)
